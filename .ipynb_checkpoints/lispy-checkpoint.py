@@ -43,7 +43,7 @@ def atom(token: str):
  
  ##################### Enviroments #######################
 
-def standard_Env(): 
+def standard_Env() -> Env: 
     "An enviroment with some Scheme standrard procedures." 
     env = Env()
     env.update(var(math)) #sin, cos, sqrt, pi, ...
@@ -77,30 +77,7 @@ def standard_Env():
     return env 
 global_env = standard_Env()
 
-
-def eval(x: Exp, env=global_env) -> Exp: 
-    "Evaluate an expressoin in an environment." 
-    if isinstance(x, Symbol):        # variable reference 
-        return env[x]
-    elif isinstance(x, Number):      # constant number 
-        return x 
-    elif x[0] == 'if':               # conditional 
-        (_, test, conseq, alt) = x
-        exp = (conseq if eval(test, env) else alt)
-        return eval(exp, env)
-    elif x[0] == 'define':           # definition
-        (_, symbol, expt) = x 
-        env[symbol] = eval(exp, env)
-    else:                            # procedure call  
-        proc = eval(x[0], env)
-        args = [eval(arg, env) for arg in x[1:]]
-        return proc(*args)
-
-
-
-
-
-"""Env(dict):
+class Env(dict):
     "An environment: a dict of {'var': val} pairs with an outer Env." 
     def __init__(self, parms=(), args=(), outer=None): 
         self.update(zip(parms, args))
@@ -108,4 +85,3 @@ def eval(x: Exp, env=global_env) -> Exp:
     def find(self, var): 
         "Find the innermost Env where var appears." 
         return self if (var in self) else self.outer.find(var)
-"""
