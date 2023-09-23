@@ -3,6 +3,11 @@
 #http://www.righto.com/2008/07/maxwells-equations-of-software-examined.html
 import math
 import operator as op 
+################## Types #######################
+Symbol = str
+List = list
+Number = (int, float)
+
 ################## Parser ######################
 
 def tokenize(chars: str) -> list:
@@ -39,14 +44,14 @@ def atom(token: str):
         try:
             return float(token)
         except ValueError: 
-            return str(token)
+            return Symbol(token)
  
  ##################### Enviroments #######################
 
 def standard_Env(): 
     "An enviroment with some Scheme standrard procedures." 
-    env = Enviroments()
-    env.update(var(math)) #sin, cos, sqrt, pi, ...
+    env = Env()
+    env.update(vars(math)) #sin, cos, sqrt, pi, ...
     env.update({
         '+': op.add, '-':op.sub, '*':op.mul, '/':op.truediv,
         '>':op.gt, '<':op.lt, '>=':op.ge, '<=':op.le, '=':op.eq, 
@@ -75,37 +80,32 @@ def standard_Env():
         'symbol?' : lambda x: isinstance(x, Symbol),
     })
     return env
+
+class Env(dict):
+    "An environment: a dict of {'var': val} pairs , with outer Env."
+    def __init__(self, parms=(), args = (), outer=None):
+        self.update(zip(parms, args))
+        self.outer = outer
+    def find(self, var):
+        "Find the innermost Env where var appears."
+        return self if (var in  self) else self.outer.find(var)
+        
 global_env = standard_Env()
-
-
-def eval(x: Exp, env=global_env) -> Exp: 
-    "Evaluate an expressoin in an environment." 
-    if isinstance(x, Symbol):        # variable reference 
+ 
+def eval(x, env=global_env):
+    "Evaluate an expression in an environment."
+    if isinstance(x, Symbol):
         return env[x]
-    elif isinstance(x, Number):      # constant number 
-        return x 
-    elif x[0] == 'if':               # conditional 
+    elif isinstance(x, Number):
+        return x
+    elif x[0] =='if':
         (_, test, conseq, alt) = x
-        exp = (conseq if eval(test, env) else alt)
+        exp = (conseq if  eval (test, env) else alt)
         return eval(exp, env)
-    elif x[0] == 'define':           # definition
-        (_, symbol, expt) = x 
+    elif x[0] == 'define': 
+        (_, symbol, exp) = x 
         env[symbol] = eval(exp, env)
-    else:                            # procedure call  
+    else: 
         proc = eval(x[0], env)
         args = [eval(arg, env) for arg in x[1:]]
         return proc(*args)
-
-
-
-
-
-"""Env(dict):
-    "An environment: a dict of {'var': val} pairs with an outer Env." 
-    def __init__(self, parms=(), args=(), outer=None): 
-        self.update(zip(parms, args))
-        self.outer = outer 
-    def find(self, var): 
-        "Find the innermost Env where var appears." 
-        return self if (var in self) else self.outer.find(var)
-"""
