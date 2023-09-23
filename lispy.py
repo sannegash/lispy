@@ -45,7 +45,7 @@ def atom(token: str):
 
 def standard_Env(): 
     "An enviroment with some Scheme standrard procedures." 
-    env = Env()
+    env = Enviroments()
     env.update(var(math)) #sin, cos, sqrt, pi, ...
     env.update({
         '+': op.add, '-':op.sub, '*':op.mul, '/':op.truediv,
@@ -74,7 +74,7 @@ def standard_Env():
         'round': round, 
         'symbol?' : lambda x: isinstance(x, Symbol),
     })
-    return env 
+    return env
 global_env = standard_Env()
 
 
