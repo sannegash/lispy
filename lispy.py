@@ -81,6 +81,8 @@ def standard_Env():
     })
     return env
 
+################## Define Env #########################
+
 class Env(dict):
     "An environment: a dict of {'var': val} pairs , with outer Env."
     def __init__(self, parms=(), args = (), outer=None):
@@ -91,7 +93,9 @@ class Env(dict):
         return self if (var in  self) else self.outer.find(var)
         
 global_env = standard_Env()
- 
+
+################ The eval Function ###################
+
 def eval(x, env=global_env):
     "Evaluate an expression in an environment."
     if isinstance(x, Symbol):
