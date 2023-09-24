@@ -3,6 +3,7 @@
 #http://www.righto.com/2008/07/maxwells-equations-of-software-examined.html
 import math
 import operator as op 
+
 ################## Types #######################
 Symbol = str
 List = list
@@ -107,18 +108,29 @@ class Procedure(object):
 
 def eval(x, env=global_env):
     "Evaluate an expression in an environment."
-    if isinstance(x, Symbol):
-        return env[x]
+    if isinstance(x, Symbol):   # variable reference 
+        return env.find(x)[x]
+    elif not isinstance(x, List):      # constant
+        return x
+    op, *args = x
+    if op == 'quote':                  # quotation
+        return args[0]
     elif isinstance(x, Number):
         return x
-    elif x[0] =='if':
+    elif x[0] =='if':                  # conditionals
         (_, test, conseq, alt) = x
         exp = (conseq if  eval (test, env) else alt)
         return eval(exp, env)
-    elif x[0] == 'define': 
+    elif x[0] == 'define':             # definition
         (_, symbol, exp) = x 
         env[symbol] = eval(exp, env)
-    else: 
+    elif op =='set':                   # assignmnet
+        (symbol, exp) = args
+        env.find(symbol)[symbol] = eval(exp, env)
+    elif op == 'lambda':               # procedure
+        (parms, body) = args
+        return Procedure(parms, body , env)
+    else:                              # procedure call 
         proc = eval(x[0], env)
         args = [eval(arg, env) for arg in x[1:]]
         return proc(*args)
