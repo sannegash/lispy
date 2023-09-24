@@ -116,10 +116,10 @@ def eval(x, env=global_env):
 
 ################## Interaction ####################
 
-def repl(promt='lispy.py>'):
+def repl(prompt='lispy.py>'):
     "A prompt-read-eval-print loop."
     while True:
-        val = eval(parse(raw_input(prompt)))
+        val = eval(parse(input(prompt)))
         if val is not None:
             print(schemestr(val))
 def schemestr(exp):
